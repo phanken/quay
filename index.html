@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Vòng Quay May Mắn</title>
+<style>
+  body {
+    text-align: center;
+    font-family: Arial;
+    background: #f5f5f5;
+  }
+  canvas {
+    margin-top: 20px;
+  }
+  button {
+    margin-top: 20px;
+    padding: 12px 30px;
+    font-size: 18px;
+    background: #ff5722;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+  }
+</style>
+</head>
+
+<body>
+
+<h2>🎁 Vòng Quay May Mắn 🎁</h2>
+
+<canvas id="wheel" width="300" height="300"></canvas>
+<br>
+<button onclick="spin()">QUAY NGAY</button>
+
+<script>
+const canvas = document.getElementById("wheel");
+const ctx = canvas.getContext("2d");
+
+const prizes = [
+  "10K", "20K", "50K",
+  "100K","200K", "500K", "Chúc bạn may mắn"
+];
+
+const colors = ["#FF9800", "#4CAF50", "#03A9F4", "#E91E63", "#9C27B0", "#FFC107", "#ed0707"];
+
+let angle = 0;
+let spinning = false;
+
+function drawWheel() {
+  const radius = canvas.width / 2;
+  const arc = (2 * Math.PI) / prizes.length;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  for (let i = 0; i < prizes.length; i++) {
+    ctx.beginPath();
+    ctx.fillStyle = colors[i];
+    ctx.moveTo(radius, radius);
+    ctx.arc(radius, radius, radius, angle + i * arc, angle + (i + 1) * arc);
+    ctx.fill();
+
+    ctx.save();
+    ctx.fillStyle = "#fff";
+    ctx.translate(radius, radius);
+    ctx.rotate(angle + i * arc + arc / 2);
+    ctx.textAlign = "right";
+    ctx.font = "14px Arial";
+    ctx.fillText(prizes[i], radius - 10, 5);
+    ctx.restore();
+  }
+
+  // mũi tên
+  ctx.fillStyle = "red";
+  ctx.beginPath();
+  ctx.moveTo(radius - 10, 10);
+  ctx.lineTo(radius + 10, 10);
+  ctx.lineTo(radius, 30);
+  ctx.fill();
+}
+
+drawWheel();
+
+function spin() {
+  if (spinning) return;
+  spinning = true;
+
+  let spinAngle = Math.random() * 3000 + 2000;
+  let start = null;
+
+  function animate(time) {
+    if (!start) start = time;
+    let progress = time - start;
+    angle = spinAngle * Math.exp(-progress / 3000);
+
+    drawWheel();
+
+    if (progress < 3000) {
+      requestAnimationFrame(animate);
+    } else {
+      spinning = false;
+      showResult();
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+function showResult() {
+  const arc = (2 * Math.PI) / prizes.length;
+  let index = Math.floor((2 * Math.PI - (angle % (2 * Math.PI))) / arc) % prizes.length;
+  alert("🎉 Bạn trúng: " + prizes[index]);
+}
+</script>
+
+</body>
+</html>
